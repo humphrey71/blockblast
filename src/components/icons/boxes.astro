@@ -1,0 +1,31 @@
+---
+/**
+ * Lucide icon "boxes" (24x24, stroke=currentColor).
+ * Rendered by NavRail.astro via the ICONS map; mirrors lucide-react's
+ * Home/History/Shuffle/... used by $SRC/src/components/NavRail.tsx.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+<svg
+  class={className}
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  xmlns="http://www.w3.org/2000/svg"
+>
+<path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z" />
+  <path d="m7 16.5-4.5-2.5V11" />
+  <path d="M16.97 12.92A2 2 0 0 1 18 14.63v3.24a2 2 0 0 1-.97 1.71l-3 1.8a2 2 0 0 1-2.06 0L8 19" />
+  <path d="M7 16.5 12 14l5 2.5" />
+  <path d="M11.03 11.08A2 2 0 0 1 12 9.37v-3.24a2 2 0 0 1 .97-1.71l3-1.8a2 2 0 0 1 2.06 0L22 4.76" />
+  <path d="m17 7.5 4.5 2.5V14" />
+  <path d="M11.03 11.08A2 2 0 0 0 10 9.37v-3.24a2 2 0 0 1 .97-1.71l3-1.8a2 2 0 0 1 2.06 0L22 4.76" />
+</svg>

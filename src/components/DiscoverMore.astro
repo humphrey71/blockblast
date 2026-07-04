@@ -1,0 +1,31 @@
+---
+/**
+ * DiscoverMore — "Discover more" related-topic pill grid shown in the sidebar.
+ *
+ * Visual source: website-cloner/src/components/DiscoverMore.tsx (entire file).
+ * Classes and pills copied verbatim (className→class, Link→<a>). Pure static;
+ * hover styling is CSS-only via Tailwind's `hover:` variants.
+ *
+ * Topic data comes from `discoverTopics` in src/data/games.ts (no hardcoding).
+ */
+import { discoverTopics } from '../data/games';
+---
+
+<section aria-label="These are topics related to the article that might interest you">
+  <p class="text-xs text-[var(--bb-body)]">
+    These are topics related to the article that might interest you
+  </p>
+  <h3 class="mb-3 mt-1 text-lg font-bold tracking-tight text-[var(--bb-title)]">
+    Discover more
+  </h3>
+  <div class="flex flex-wrap gap-2">
+    {discoverTopics.map((t) => (
+      <a
+        href={t.href}
+        class="rounded-md border border-[var(--bb-divider)] bg-card px-2.5 py-1 text-[13px] text-[var(--bb-title)] transition-colors hover:border-[var(--bb-purple)] hover:text-[var(--bb-purple)]"
+      >
+        {t.label}
+      </a>
+    ))}
+  </div>
+</section>

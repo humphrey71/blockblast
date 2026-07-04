@@ -1,0 +1,95 @@
+---
+/**
+ * Footer — site footer: logo + disclaimer + three link columns.
+ *
+ * Visual source: website-cloner/src/components/Footer.tsx (entire file).
+ * Classes and SECTIONS copied verbatim (className→class, Link→<a>,
+ * next/image→<img>). Pure static; hover styling is CSS-only.
+ *
+ * Intentional deviations from $SRC (documented):
+ *  - Logo rendered via `<img>` (PNG bitmap asset) instead of next/image,
+ *    `src` prefixed with `import.meta.env.BASE_URL` to honor
+ *    `base: '/blockblast/'` in astro.config.mjs (matches Header.astro).
+ *  - Internal `href`s are BASE_URL-prefixed for the same reason.
+ *  - LOGO_FOOTER path inlined rather than imported from icons.tsx (the Astro
+ *    clone keeps asset paths as string literals next to their use site).
+ */
+const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] = [
+  {
+    heading: 'Developers',
+    links: [
+      { label: 'About us', href: '/about-us' },
+      { label: 'Contact us', href: '/contact-us' },
+    ],
+  },
+  {
+    heading: 'Information',
+    links: [
+      { label: 'Privacy policy', href: '/privacy-policy' },
+      { label: 'Term of use', href: '/term-of-use' },
+    ],
+  },
+  {
+    heading: 'Support',
+    links: [
+      {
+        label: 'Copyright Infringement Notice Procedure',
+        href: '/copyright-infringement-notice-procedure',
+      },
+    ],
+  },
+];
+
+const base = import.meta.env.BASE_URL;
+const url = (h: string): string => (h.startsWith('/') ? `${base}${h.slice(1)}` : h);
+const logoSrc = `${base}cache/data/image/options/block-blast-logo-hx64.png`;
+---
+
+<footer class="mt-12 border-t border-[var(--bb-divider)] bg-card px-6 py-10">
+  <div
+    class="mx-auto flex max-w-[1200px] flex-col gap-8 md:flex-row md:items-start md:justify-between"
+  >
+    <div class="max-w-md space-y-3">
+      <a href={url('/')} aria-label="Block Blast logo">
+        <img
+          src={logoSrc}
+          alt="Block Blast logo"
+          width="268"
+          height="64"
+          class="h-12 w-auto"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+      <p class="text-sm leading-relaxed text-[var(--bb-body)]">
+        <span class="font-bold text-[var(--bb-title)]">Disclaimer: </span>
+        <a href={url('/')} class="text-[var(--bb-purple)] hover:underline">
+          Block Blast{' '}
+        </a>
+        is an independent website and is not affiliated with any organizations.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+      {SECTIONS.map((s) => (
+        <div>
+          <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[var(--bb-title)]">
+            {s.heading}
+          </h3>
+          <ul class="space-y-2">
+            {s.links.map((l) => (
+              <li>
+                <a
+                  href={url(l.href)}
+                  class="text-sm text-[var(--bb-body)] transition-colors hover:text-[var(--bb-purple)]"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</footer>

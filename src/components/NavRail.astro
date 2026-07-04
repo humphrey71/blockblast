@@ -1,0 +1,91 @@
+---
+/**
+ * NavRail — left vertical category navigation (desktop only, lg+).
+ *
+ * Visual source: website-cloner/src/components/NavRail.tsx (desktop `<nav>`
+ * branch only). Classes, breakpoints, SVG icons, and active/hover colors
+ * copied verbatim (className→class, cn(...)→plain class strings, lucide-react
+ * icons→inline SVG .astro files under ./icons/).
+ *
+ * Intentional deviations from $SRC (documented):
+ *  - Mobile slide-in drawer omitted. $SRC's drawer depends on an `open` prop
+ *    + onNavigate callback (AppShell owns the state) — that wiring is an
+ *    island and lives in the NavDrawer task, not here. This component renders
+ *    only the `hidden ... lg:block` desktop rail, which is pure static markup.
+ *  - Each item's icon is an inline-SVG `.astro` under ./icons/ rather than a
+ *    lucide-react component (no React dependency).
+ *  - `href`s are prefixed with `import.meta.env.BASE_URL` to honor
+ *    `base: '/blockblast/'` in astro.config.mjs (matches Header.astro).
+ *
+ * Active state ("Random") comes from `navItems[i].active` in games.ts — it is
+ * static/data-driven, not runtime state.
+ */
+import { navItems } from '../data/games';
+import Home from './icons/home.astro';
+import History from './icons/history.astro';
+import Shuffle from './icons/shuffle.astro';
+import Sparkles from './icons/sparkles.astro';
+import TrendingUp from './icons/trending-up.astro';
+import Flame from './icons/flame.astro';
+import Grid2X2 from './icons/grid-2x2.astro';
+import CircleDot from './icons/circle-dot.astro';
+import Gamepad2 from './icons/gamepad-2.astro';
+import Puzzle from './icons/puzzle.astro';
+import LayoutGrid from './icons/layout-grid.astro';
+import Footprints from './icons/footprints.astro';
+import Zap from './icons/zap.astro';
+import Trophy from './icons/trophy.astro';
+import Boxes from './icons/boxes.astro';
+
+const ICONS: Record<string, typeof Home> = {
+  home: Home,
+  history: History,
+  shuffle: Shuffle,
+  sparkles: Sparkles,
+  'trending-up': TrendingUp,
+  flame: Flame,
+  'grid-2x2': Grid2X2,
+  'circle-dot': CircleDot,
+  'gamepad-2': Gamepad2,
+  puzzle: Puzzle,
+  'layout-grid': LayoutGrid,
+  footprints: Footprints,
+  zap: Zap,
+  trophy: Trophy,
+  boxes: Boxes,
+};
+
+const base = import.meta.env.BASE_URL;
+const url = (h: string): string => (h.startsWith('/') ? `${base}${h.slice(1)}` : h);
+---
+
+<nav
+  class="fixed left-0 top-[74px] bottom-0 z-30 hidden w-52 overflow-y-auto border-r border-[var(--bb-divider)] bg-card px-3 py-4 lg:block"
+>
+  <ul class="flex flex-col gap-0.5">
+    {navItems.map((item, i) => {
+      if (i === 3) {
+        return <li class="my-2 h-px bg-[var(--bb-divider)]" aria-hidden="true"></li>;
+      }
+      const Icon = ICONS[item.icon ?? 'circle-dot'];
+      const active = item.active;
+      return (
+        <li>
+          <a
+            href={url(item.href)}
+            title={item.label}
+            class:list={[
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
+              active
+                ? 'bg-[var(--bb-button-hover)] text-white'
+                : 'text-[var(--bb-body)] hover:bg-[var(--bb-light-gray)] hover:text-[var(--bb-title)]',
+            ]}
+          >
+            <Icon class="h-5 w-5 shrink-0" />
+            <span class="truncate">{item.label}</span>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>
