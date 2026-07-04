@@ -1,0 +1,28 @@
+---
+/**
+ * Lucide icon "thumbs-down" (24x24, stroke=currentColor).
+ * Used by Comments.astro per-comment "not helpful" vote button; mirrors
+ * lucide-react's ThumbsDown used by $SRC/src/components/Comments.tsx.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+<svg
+  class={className}
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M17 14V2"></path>
+  <path
+    d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H17a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L10 22a3.13 3.13 0 0 1-1-5.88Z"
+  ></path>
+</svg>

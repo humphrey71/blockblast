@@ -1,0 +1,248 @@
+---
+/**
+ * Discuss / comments section.
+ *
+ * Ported 1:1 from $SRC/src/components/Comments.tsx (Next.js + lucide-react) →
+ * plain Astro + local icon components. Class names and DOM structure mirror
+ * $SRC verbatim (className → class).
+ *
+ * Data layering (spec §6):
+ *   - comments ← interactions.json (NOT hard-coded)
+ *   - total    ← interactions.json (shown as "Comments (N)" in the sub-header)
+ *
+ * Nested replies:
+ *   The Comment type allows an optional `replies?: Comment[]`. The current
+ *   dataset has 0 replies, but the renderer handles them so future data with
+ *   replies renders automatically. Both top-level comments and replies carry
+ *   `data-ts` + a <time> child so the same island upgrades both.
+ *
+ * Placeholder avatars:
+ *   `avatar` is null in the static dataset, so we render the author's initial
+ *   on a cycling gradient background — exactly as $SRC does (AVATAR_GRADIENTS
+ *   cycled by index). The gradient is data-driven (index-based), so an inline
+ *   `style` is used for the avatar background, matching $SRC; this is the one
+ *   scoped exception to "no inline styles".
+ *
+ * Timestamps (deploy-safe):
+ *   SSR emits the raw ISO string inside <time> as the fallback text (readable,
+ *   never stale). A small client island (see <script> below) replaces each
+ *   <time>'s text with a relative "x ago" string computed from `data-ts` via
+ *   the pure formatRelative(). With JS disabled the ISO string remains.
+ *
+ * Visual-only controls:
+ *   The sort <select>, "Load more" button, reply / thumbs-up / thumbs-down
+ *   buttons, and the comment <form> are present for visual parity with $SRC
+ *   but are non-functional in this static build (no backend).
+ */
+import interactions from '../data/interactions.json';
+import type { Comment } from '../types';
+import ChevronDown from './icons/chevron-down.astro';
+import ThumbsUp from './icons/thumbs-up.astro';
+import ThumbsDown from './icons/thumbs-down.astro';
+
+const { comments, total } = interactions;
+
+// Cycle gradient backgrounds for placeholder avatars (mirrors $SRC).
+const AVATAR_GRADIENTS = [
+  'var(--bb-grad-pink)',
+  'var(--bb-grad-blue)',
+  'var(--bb-grad-green)',
+  'var(--bb-grad-yellow)',
+];
+---
+
+<section class="mt-10">
+  <h2 class="mb-6 text-2xl font-bold tracking-tight text-[var(--bb-title)]">
+    Discuss: Block Blast
+  </h2>
+
+  {/* Header: count + sort — visual only */}
+  <div
+    class="mb-6 flex items-center justify-between border-b border-[var(--bb-divider)] pb-3"
+  >
+    <span class="text-base font-semibold text-[var(--bb-title)]">
+      Comments <span class="text-[var(--bb-body)]">({total})</span>
+    </span>
+    <label class="flex items-center gap-2 text-sm text-[var(--bb-body)]">
+      Sort by
+      <span class="relative inline-flex items-center">
+        <select
+          class="appearance-none rounded-md border border-[var(--bb-divider)] bg-card py-1.5 pl-2 pr-7 text-sm font-medium text-[var(--bb-title)] outline-none"
+        >
+          <option>Newest</option>
+          <option>Oldest</option>
+          <option>Popular</option>
+        </select>
+        <ChevronDown
+          class="pointer-events-none absolute right-1.5 h-4 w-4 text-[var(--bb-body)]"
+        />
+      </span>
+    </label>
+  </div>
+
+  {/* Comment list — nested: replies render in a sub-<ul> when present */}
+  <ul class="space-y-6">
+    {comments.map((c: Comment, i: number) => (
+      <li class="flex gap-3" data-ts={c.timestamp}>
+        <span
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
+          style={`background-image: ${AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length]}`}
+        >
+          {c.author.slice(0, 1)}
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-[var(--bb-title)]">{c.author}</span>
+            {/* SSR emits ISO as fallback; island swaps in relative time on client */}
+            <time class="text-xs text-[var(--bb-body)]" datetime={c.timestamp}>
+              {c.timestamp}
+            </time>
+          </div>
+          <p class="mt-1 text-[15px] leading-relaxed text-[var(--bb-title)]">
+            {c.content}
+          </p>
+          <div
+            class="mt-2 flex items-center gap-4 text-sm text-[var(--bb-body)]"
+          >
+            <button
+              type="button"
+              class="transition-colors hover:text-[var(--bb-purple)]"
+            >
+              Reply
+            </button>
+            <button
+              type="button"
+              aria-label="Vote this comment up (helpful)"
+              class="flex items-center gap-1 transition-colors hover:text-[var(--bb-purple)]"
+            >
+              <ThumbsUp class="h-4 w-4" />
+              {c.likes}
+            </button>
+            <button
+              type="button"
+              aria-label="Vote this comment down (not helpful)"
+              class="flex items-center gap-1 transition-colors hover:text-[var(--bb-purple)]"
+            >
+              <ThumbsDown class="h-4 w-4" />
+              {c.dislikes}
+            </button>
+          </div>
+
+          {/* Threaded replies (data currently has none; logic ready for them) */}
+          {c.replies && c.replies.length > 0 && (
+            <ul class="mt-4 space-y-4 border-l border-[var(--bb-divider)] pl-6">
+              {c.replies.map((r: Comment, j: number) => (
+                <li class="flex gap-3" data-ts={r.timestamp}>
+                  <span
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={`background-image: ${AVATAR_GRADIENTS[(i + j + 1) % AVATAR_GRADIENTS.length]}`}
+                  >
+                    {r.author.slice(0, 1)}
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-[var(--bb-title)]">
+                        {r.author}
+                      </span>
+                      <time
+                        class="text-xs text-[var(--bb-body)]"
+                        datetime={r.timestamp}
+                      >
+                        {r.timestamp}
+                      </time>
+                    </div>
+                    <p class="mt-1 text-[15px] leading-relaxed text-[var(--bb-title)]">
+                      {r.content}
+                    </p>
+                    <div
+                      class="mt-2 flex items-center gap-4 text-sm text-[var(--bb-body)]"
+                    >
+                      <button
+                        type="button"
+                        class="transition-colors hover:text-[var(--bb-purple)]"
+                      >
+                        Reply
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Vote this comment up (helpful)"
+                        class="flex items-center gap-1 transition-colors hover:text-[var(--bb-purple)]"
+                      >
+                        <ThumbsUp class="h-4 w-4" />
+                        {r.likes}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Vote this comment down (not helpful)"
+                        class="flex items-center gap-1 transition-colors hover:text-[var(--bb-purple)]"
+                      >
+                        <ThumbsDown class="h-4 w-4" />
+                        {r.dislikes}
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  {/* Load more — visual only */}
+  <button
+    type="button"
+    class="mt-6 w-full rounded-lg border border-[var(--bb-divider)] bg-card py-2.5 text-sm font-semibold text-[var(--bb-body)] transition-colors hover:bg-[var(--bb-light-gray)] hover:text-[var(--bb-title)]"
+  >
+    Load more 5 comments
+  </button>
+
+  {/* Comment form — visual only */}
+  <form class="mt-8 space-y-3">
+    <div class="grid gap-3 sm:grid-cols-2">
+      <input
+        type="text"
+        aria-label="Name"
+        placeholder="Name"
+        class="rounded-lg border border-[var(--bb-divider)] bg-card px-3 py-2.5 text-sm outline-none focus:border-[var(--bb-purple)]"
+      />
+      <input
+        type="email"
+        aria-label="Email"
+        placeholder="Email"
+        class="rounded-lg border border-[var(--bb-divider)] bg-card px-3 py-2.5 text-sm outline-none focus:border-[var(--bb-purple)]"
+      />
+    </div>
+    <textarea
+      aria-label="Content"
+      placeholder="Content"
+      rows="4"
+      class="w-full rounded-lg border border-[var(--bb-divider)] bg-card px-3 py-2.5 text-sm outline-none focus:border-[var(--bb-purple)]"
+    ></textarea>
+    <label class="flex items-center gap-2 text-sm text-[var(--bb-body)]">
+      <input type="checkbox" class="h-4 w-4 accent-[var(--bb-purple)]" />
+      I'd read and agree to the terms and conditions.
+    </label>
+    <button
+      type="submit"
+      class="rounded-full px-6 py-2.5 text-sm font-bold text-white transition-transform hover:scale-[1.02]"
+      style="background-image: var(--bb-grad-pink)"
+    >
+      Comment
+    </button>
+  </form>
+</section>
+
+<script>
+  // Client island: upgrade every <time> inside a [data-ts] node from the raw
+  // ISO string (SSR fallback) to a relative "x ago" string. Pure logic lives in
+  // src/lib/relativeTime.ts (unit-tested). No-op without JS — ISO remains.
+  import { formatRelative } from '../lib/relativeTime';
+
+  document.querySelectorAll<HTMLElement>('[data-ts]').forEach((el) => {
+    const ts = el.getAttribute('data-ts');
+    const t = el.querySelector<HTMLTimeElement>('time');
+    if (ts && t) t.textContent = formatRelative(ts);
+  });
+</script>
