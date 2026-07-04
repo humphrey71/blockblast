@@ -1,0 +1,72 @@
+---
+import Body, { frontmatter } from '../content/index.mdx';
+import interactions from '../data/interactions.json';
+
+/**
+ * The SEO article column: breadcrumb, star rating, H1, and the full overview /
+ * how-to-play / why-play / categories body.
+ *
+ * Ported 1:1 from $SRC/src/components/ArticleContent.tsx (Next.js + next/image +
+ * hard-coded RATING_VALUE/RATING_VOTES) → plain Astro + <img> + interactions.json.
+ *
+ * Data layering (spec §6):
+ *   - title   ← MDX frontmatter  (SEO-static)
+ *   - rating  ← interactions.json (interaction data, not hard-coded)
+ *   - votes   ← interactions.json (interaction data, not hard-coded)
+ *   - body    ← MDX <Body />      (rendered into .article for typography)
+ *
+ * The body's h2/h3/h4/p/a typography comes from the `.article` rules in
+ * global.css (Task 2) — @tailwindcss/typography `prose` is intentionally NOT
+ * used (it was removed); `.article` is the hand-tuned equivalent that matches
+ * the live site's exact sizes/weights/colors.
+ *
+ * Breadcrumb, star images, and the rating container are kept here in the
+ * component (NOT in the MDX) so the MDX stays pure prose.
+ */
+const STAR_SRC = '/themes/block-blast.io/rs/plugins/raty/images/star-on-big.png';
+---
+
+<article class="article">
+  {/* Breadcrumb — copied verbatim from $SRC (links, separators, classes) */}
+  <nav
+    class="mb-3 flex flex-wrap items-center gap-1 text-sm text-[var(--bb-body)]"
+    aria-label="Breadcrumb"
+  >
+    <a href="/" class="hover:text-[var(--bb-purple)]">Home</a>
+    <span>/</span>
+    <a href="/games/block-games" class="hover:text-[var(--bb-purple)]">Block Games</a>
+    <span>/</span>
+    <span class="text-[var(--bb-title)]">{frontmatter.title}</span>
+  </nav>
+
+  {/* Star rating — rating/votes sourced from interactions.json (not hard-coded) */}
+  <div class="mb-2 flex items-center gap-2">
+    <div class="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <img
+          src={STAR_SRC}
+          alt={`${i + 1}`}
+          width="24"
+          height="24"
+          class="h-5 w-5"
+          loading="eager"
+        />
+      ))}
+    </div>
+    <span class="text-sm text-[var(--bb-body)]">
+      {interactions.votes.toLocaleString()} votes
+    </span>
+    <span class="text-sm font-bold text-[var(--bb-title)]">
+      {interactions.rating} / 5
+    </span>
+  </div>
+
+  {/* H1 from frontmatter.title (styled by .article h1 in global.css) */}
+  <h1>{frontmatter.title}</h1>
+
+  {/* Body: MDX rendered, wrapped in .article so global.css typography applies.
+      No `prose` — .article is the tuned equivalent (Task 2). */}
+  <div class="article">
+    <Body />
+  </div>
+</article>
