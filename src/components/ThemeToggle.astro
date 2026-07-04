@@ -1,0 +1,116 @@
+---
+/**
+ * ThemeToggle — two-button pill (moon / sun) with active-pill highlight,
+ * mirroring the block-blast.io visual 1:1.
+ *
+ * Pure theme logic (no DOM) lives in `src/lib/theme.ts` and is unit-tested.
+ * DOM side-effects — classList toggling, localStorage persistence, and the
+ * active-pill class swapping below — live in `<script>` so the .astro file
+ * stays an island with no React dependency.
+ *
+ * Visual source: website-cloner/src/components/Header.tsx (theme switcher
+ * block, lines 73-97). Classes and inline SVG icons copied verbatim.
+ */
+---
+
+<div class="flex shrink-0 items-center gap-1 rounded-full bg-[var(--bb-light-gray)] p-1">
+  <button
+    id="theme-toggle-dark"
+    type="button"
+    aria-label="dark theme"
+    class="flex h-7 w-7 items-center justify-center rounded-full transition-colors text-[var(--bb-body)]"
+  >
+    <svg
+      class="h-4 w-4"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5 4.25c0-.957.14-1.925.5-2.75-2.388 1.04-4 3.479-4 6.25a6.75 6.75 0 0 0 6.75 6.75c2.771 0 5.21-1.612 6.25-4-.825.36-1.793.5-2.75.5A6.75 6.75 0 0 1 5 4.25Z"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  </button>
+  <button
+    id="theme-toggle-light"
+    type="button"
+    aria-label="light theme"
+    class="flex h-7 w-7 items-center justify-center rounded-full transition-colors text-[var(--bb-body)]"
+  >
+    <svg
+      class="h-4 w-4"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="m4.93 4.93 1.41 1.41"></path>
+      <path d="m17.66 17.66 1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="m6.34 17.66-1.41 1.41"></path>
+      <path d="m19.07 4.93-1.41 1.41"></path>
+    </svg>
+  </button>
+</div>
+
+<script>
+  import { nextTheme } from '../lib/theme';
+  import type { Theme } from '../lib/theme';
+
+  const darkBtn = document.getElementById('theme-toggle-dark');
+  const lightBtn = document.getElementById('theme-toggle-light');
+
+  // Active-pill class mapping mirrors $SRC Header.tsx exactly:
+  //  - dark active  → bg-[var(--bb-button-hover)] text-white
+  //  - light active → bg-[var(--bb-purple)] text-white
+  //  - inactive     → text-[var(--bb-body)]
+  const BASE = 'flex h-7 w-7 items-center justify-center rounded-full transition-colors';
+  const ACTIVE_DARK = 'bg-[var(--bb-button-hover)] text-white';
+  const ACTIVE_LIGHT = 'bg-[var(--bb-purple)] text-white';
+  const INACTIVE = 'text-[var(--bb-body)]';
+
+  function currentTheme(): Theme {
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  }
+
+  function sync(): void {
+    const theme = currentTheme();
+    if (darkBtn) {
+      darkBtn.className =
+        theme === 'dark' ? `${BASE} ${ACTIVE_DARK}` : `${BASE} ${INACTIVE}`;
+    }
+    if (lightBtn) {
+      lightBtn.className =
+        theme === 'light' ? `${BASE} ${ACTIVE_LIGHT}` : `${BASE} ${INACTIVE}`;
+    }
+  }
+
+  function applyTheme(next: Theme): void {
+    document.documentElement.classList.toggle('dark', next === 'dark');
+    localStorage.setItem('theme', next);
+    sync();
+  }
+
+  darkBtn?.addEventListener('click', () => {
+    applyTheme(nextTheme(currentTheme()));
+  });
+  lightBtn?.addEventListener('click', () => {
+    applyTheme(nextTheme(currentTheme()));
+  });
+
+  sync();
+</script>
