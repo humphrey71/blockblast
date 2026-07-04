@@ -1,11 +1,79 @@
 ---
+/**
+ * index.astro — home page assembly (three-column layout).
+ *
+ * Visual source: $SRC/src/components/AppShell.tsx + $SRC/src/app/page.tsx.
+ * blockblast has no AppShell wrapper component, so this page manually
+ * reproduces the AppShell+page nested structure:
+ *
+ *   <Header />                       (fixed, h-74px, z-7 — self-contained)
+ *   <NavRail />                      (fixed left, w-52, top-74, lg:block)
+ *   <div pt-[74px] lg:pl-52>         (AppShell offset wrapper)
+ *     <div mx-auto max-w-[1400px] …> (page.tsx container)
+ *       <div grid lg:grid-cols-[minmax(0,1fr)_336px]>
+ *         <main>  GameEmbed · underGameRail · ArticleContent · Comments
+ *         <aside> gameBlockSidebar · DiscoverMore · descriptionSidebarA/B
+ *       </div>
+ *     </div>
+ *     <Footer />                     (sibling of page container, inside offset)
+ *   </div>
+ *
+ * All container/grid/sticky/pt classes copied verbatim from $SRC. Header and
+ * NavRail take no props here: $SRC's AppShell threads `onMenuClick`/`open`/
+ * `onClose` for the mobile nav drawer, which blockblast defers to the NavDrawer
+ * task (documented deviation in Header.astro / NavRail.astro).
+ *
+ * title/description come from $SRC/src/app/layout.tsx metadata.
+ */
 import AppLayout from '../layouts/AppLayout.astro';
 import Header from '../components/Header.astro';
+import NavRail from '../components/NavRail.astro';
+import GameEmbed from '../components/GameEmbed.astro';
+import GameRail from '../components/GameRail.astro';
+import ArticleContent from '../components/ArticleContent.astro';
+import Comments from '../components/Comments.astro';
+import DiscoverMore from '../components/DiscoverMore.astro';
+import Footer from '../components/Footer.astro';
+import {
+  descriptionSidebarA,
+  descriptionSidebarB,
+  gameBlockSidebar,
+  underGameRail,
+} from '../data/games';
 ---
 
-<AppLayout title="Block Blast" description="test">
+<AppLayout
+  title="Block Blast - Puzzle Games"
+  description="Play Block Blast online for free. A relaxing 8x8 block puzzle game — place blocks, clear lines, beat your high score. No download required."
+>
   <Header />
-  <main class="min-h-screen bg-[var(--background)] p-8 pt-[74px] text-[var(--foreground)]">
-    header test
-  </main>
+  <NavRail />
+  {/* AppShell offset for fixed header (74px) + desktop sidebar (w-52 on lg) */}
+  <div class="pt-[74px] lg:pl-52">
+    <div class="mx-auto max-w-[1400px] px-4 py-6 md:px-6">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_336px]">
+        {/* Main column */}
+        <main class="min-w-0 space-y-8">
+          <GameEmbed />
+          <GameRail
+            title="Block Blast"
+            games={underGameRail}
+            columns={2}
+            class="max-w-[420px]"
+          />
+          <ArticleContent />
+          <Comments />
+        </main>
+
+        {/* Right sidebar (sticky on lg) */}
+        <aside class="min-w-0 self-start space-y-8 lg:sticky lg:top-[90px]">
+          <GameRail games={gameBlockSidebar} columns={2} />
+          <DiscoverMore />
+          <GameRail games={descriptionSidebarA} columns={2} />
+          <GameRail games={descriptionSidebarB} columns={2} />
+        </aside>
+      </div>
+    </div>
+    <Footer />
+  </div>
 </AppLayout>
