@@ -1,0 +1,22 @@
+---
+/**
+ * Lucide icon "play" (24x24, fill=currentColor).
+ * Used by GameEmbed.astro's "Play Game" pill; mirrors lucide-react's Play
+ * used by $SRC/src/components/GameEmbed.tsx. Filled variant (fill-white) since
+ * the pill shows a solid triangle.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+<svg
+  class={className}
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <polygon points="6 3 20 12 6 21 6 3" />
+</svg>

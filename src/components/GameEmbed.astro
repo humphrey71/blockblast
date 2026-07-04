@@ -1,0 +1,89 @@
+---
+/**
+ * Game play screen: a preview background with a "Play Game" button overlay.
+ * Clicking swaps in the real game iframe (the same embed URL the live site uses).
+ *
+ * Ported 1:1 from $SRC/src/components/GameEmbed.tsx (Next.js, useState island)
+ * → plain Astro + native <script> island. Preview-layer structure / classes /
+ * "Play Game" pill copied verbatim from source.
+ *
+ * SECURITY (spec §11.1): the dynamically-created iframe is hardened with
+ *   - sandbox    = allow-scripts allow-same-origin allow-forms allow-popups
+ *                   allow-popups-to-escape-sandbox  (5 tokens)
+ *   - referrerPolicy = no-referrer
+ *   - allow      = fullscreen; autoplay; gamepad; pointer-lock
+ * `src` is a string literal (no XSS entry point); sandbox is defense-in-depth.
+ * allow-scripts + allow-same-origin together are the pragmatic trade-off between
+ * "game runs" and "isolated from the parent origin".
+ */
+const EMBED_URL = 'https://block-blast.io/block-blast.embed';
+const EMBED_BG = '/cache/data/image/game/block-blast-game-m160x96.jpg';
+const EMBED_LOGO = '/themes/block-blast.io/embed/coolgamesonline-logo.png';
+import Play from './icons/play.astro';
+---
+
+<div
+  class="relative aspect-[1000/558] w-full overflow-hidden rounded-xl bg-black"
+  id="game-embed"
+  data-embed-url={EMBED_URL}
+>
+  {/* Preview layer: background + portal logo + "Play Game" pill (verbatim from $SRC) */}
+  <button
+    type="button"
+    class="group absolute inset-0 h-full w-full"
+    aria-label="play game"
+    id="play-btn"
+  >
+    <img
+      src={EMBED_BG}
+      alt="Block Blast background"
+      class="absolute inset-0 h-full w-full object-cover"
+      loading="eager"
+    />
+    {/* Top-left portal logo */}
+    <span class="absolute left-3 top-3 z-10">
+      <img
+        src={EMBED_LOGO}
+        alt="Home Logo"
+        width="120"
+        height="36"
+        class="h-7 w-auto opacity-90"
+      />
+    </span>
+    {/* Play button pill */}
+    <span class="absolute inset-0 flex items-center justify-center">
+      <span
+        class="flex items-center gap-2 rounded-full px-7 py-3 text-base font-extrabold uppercase tracking-wide text-white shadow-lg transition-transform duration-150 group-hover:scale-105"
+        style="background-image: var(--bb-grad-pink);"
+      >
+        <Play class="h-5 w-5 fill-white" />
+        Play Game
+      </span>
+    </span>
+  </button>
+</div>
+
+<script>
+  const btn = document.getElementById('play-btn');
+  const host = document.getElementById('game-embed');
+  if (btn && host) {
+    btn.addEventListener('click', () => {
+      const url = host.dataset.embedUrl || '';
+      host.innerHTML = ''; // remove preview layer
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.title = 'Block Blast';
+      iframe.className = 'absolute inset-0 h-full w-full';
+      iframe.allow = 'fullscreen; autoplay; gamepad; pointer-lock';
+      iframe.referrerPolicy = 'no-referrer';
+      iframe.sandbox.add(
+        'allow-scripts',
+        'allow-same-origin',
+        'allow-forms',
+        'allow-popups',
+        'allow-popups-to-escape-sandbox',
+      );
+      host.appendChild(iframe);
+    });
+  }
+</script>
