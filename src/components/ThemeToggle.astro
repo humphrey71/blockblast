@@ -68,7 +68,6 @@
 </div>
 
 <script>
-  import { nextTheme } from '../lib/theme';
   import type { Theme } from '../lib/theme';
 
   const darkBtn = document.getElementById('theme-toggle-dark');
@@ -105,11 +104,13 @@
     sync();
   }
 
+  // Explicit selection (matches $SRC Header.tsx: moon→set dark, sun→set light),
+  // NOT a toggle of the current state.
   darkBtn?.addEventListener('click', () => {
-    applyTheme(nextTheme(currentTheme()));
+    applyTheme('dark');
   });
   lightBtn?.addEventListener('click', () => {
-    applyTheme(nextTheme(currentTheme()));
+    applyTheme('light');
   });
 
   sync();
