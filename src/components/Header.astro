@@ -1,0 +1,128 @@
+---
+/**
+ * Header — fixed top bar: logo (left), desktop search pill (center, ≥md),
+ * mobile search toggle (right, <md), theme switcher (right).
+ * Includes the mobile search overlay row as a data-open toggled island.
+ *
+ * Visual source: website-cloner/src/components/Header.tsx (entire file).
+ * Classes, breakpoints, and SVG icons copied verbatim (className→class,
+ * cn(...)→plain class strings). No React; the mobile-search open/close
+ * behavior is a native `<script>` island.
+ *
+ * Intentional deviations from $SRC (documented):
+ *  - Hamburger menu button omitted. $SRC's hamburger depends on
+ *    `onMenuClick` (AppShell owns drawer state); that wiring lands in the
+ *    NavDrawer task, not here.
+ *  - Logo rendered via `<img>` (PNG bitmap asset) instead of next/image.
+ *    `src` is prefixed with `import.meta.env.BASE_URL` to honor
+ *    `base: '/blockblast/'` in astro.config.mjs.
+ *  - Search inputs are visual-only (no search backend), matching $SRC.
+ */
+import ThemeToggle from './ThemeToggle.astro';
+import SearchMobileIcon from './icons/search-mobile.astro';
+import SearchIcon from './icons/search.astro';
+import CloseIcon from './icons/close.astro';
+
+const logoSrc = `${import.meta.env.BASE_URL}cache/data/image/options/block-blast-logo-hx48.png`;
+---
+
+<header
+  class="fixed inset-x-0 top-0 z-[7] flex h-[74px] items-center gap-3 border-b border-[var(--bb-divider)] bg-card px-4 py-3 md:gap-5 md:px-6"
+>
+  {/* Logo */}
+  <a href={`${import.meta.env.BASE_URL}`} class="flex shrink-0 items-center" aria-label="Block Blast logo">
+    <img
+      src={logoSrc}
+      alt="Block Blast logo"
+      width="201"
+      height="48"
+      class="h-[40px] w-auto md:h-[48px]"
+    />
+  </a>
+
+  {/* Search (desktop) */}
+  <div
+    class="hidden min-w-0 max-w-[480px] flex-1 items-center gap-2 rounded-full bg-[var(--bb-light-gray)] px-4 py-2.5 md:flex"
+  >
+    <SearchMobileIcon class="h-5 w-5 shrink-0 text-[var(--bb-body)]" />
+    <input
+      type="text"
+      aria-label="Search"
+      placeholder="Search"
+      class="min-w-0 flex-1 bg-transparent text-base text-[var(--bb-title)] outline-none placeholder:text-[var(--bb-body)]"
+    />
+  </div>
+
+  {/* Spacer pushes the right cluster to the end on mobile (no desktop search) */}
+  <div class="flex-1 md:hidden"></div>
+
+  {/* Search toggle (mobile) */}
+  <button
+    type="button"
+    aria-label="Search"
+    id="mobile-search-toggle"
+    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--bb-title)] hover:bg-[var(--bb-light-gray)] md:hidden"
+  >
+    {/* $SRC swaps SearchMobileIcon↔CloseIcon based on searchOpen; the island
+        script toggles `hidden` on these two to mirror that. */}
+    <SearchMobileIcon class="h-6 w-6" data-icon="open" />
+    <CloseIcon class="hidden h-6 w-6" data-icon="close" />
+  </button>
+
+  {/* Theme switcher */}
+  <ThemeToggle />
+
+  {/* Mobile search overlay row */}
+  <div
+    id="mobile-search"
+    data-open="false"
+    class="absolute inset-x-0 top-full flex items-center gap-2 border-b border-[var(--bb-divider)] bg-card px-4 py-3 md:hidden"
+  >
+    <SearchIcon class="h-5 w-5 text-[var(--bb-body)]" />
+    <input
+      type="text"
+      aria-label="Search"
+      placeholder="Search"
+      class="min-w-0 flex-1 bg-transparent text-base text-[var(--bb-title)] outline-none"
+    />
+    <button type="button" aria-label="close" id="mobile-search-close">
+      <CloseIcon class="h-6 w-6 text-[var(--bb-body)]" />
+    </button>
+  </div>
+</header>
+
+<style>
+  /* Mobile search overlay row visibility.
+     Desktop hides it via `md:hidden` on the element; on mobile, data-open
+     drives visibility. id selector specificity (1,1,0) beats `.flex` (0,1,0),
+     and when data-open="true" this rule doesn't match so `.flex` shows it. */
+  #mobile-search[data-open='false'] {
+    display: none;
+  }
+</style>
+
+<script>
+  // Mobile-search island: toggle the overlay row and swap the toggle button's
+  // icon between search (closed) and close (open), mirroring $SRC's
+  // `searchOpen ? <CloseIcon/> : <SearchMobileIcon/>`.
+  const btn = document.getElementById('mobile-search-toggle');
+  const row = document.getElementById('mobile-search');
+  const closeBtn = document.getElementById('mobile-search-close');
+  const openIcon = btn?.querySelector('[data-icon="open"]');
+  const closeIcon = btn?.querySelector('[data-icon="close"]');
+
+  const apply = (open: boolean): void => {
+    if (!row) return;
+    row.setAttribute('data-open', String(open));
+    openIcon?.classList.toggle('hidden', open); // open  → hide search icon
+    closeIcon?.classList.toggle('hidden', !open); // closed → hide close icon
+  };
+
+  const toggle = (open?: boolean): void => {
+    if (!row) return;
+    apply(open ?? row.getAttribute('data-open') !== 'true');
+  };
+
+  btn?.addEventListener('click', () => toggle());
+  closeBtn?.addEventListener('click', () => toggle(false));
+</script>

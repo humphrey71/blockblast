@@ -1,9 +1,11 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import Header from '../components/Header.astro';
 ---
 
 <AppLayout title="Block Blast" description="test">
-  <main class="bg-[var(--background)] text-[var(--foreground)] min-h-screen p-8">
-    <h1 class="text-4xl">foundation ok</h1>
+  <Header />
+  <main class="min-h-screen bg-[var(--background)] p-8 pt-[74px] text-[var(--foreground)]">
+    header test
   </main>
 </AppLayout>
