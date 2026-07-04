@@ -1,13 +1,9 @@
 ---
+import AppLayout from '../layouts/AppLayout.astro';
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>blockblast</title>
-  </head>
-  <body>
-    <h1>scaffold ok</h1>
-  </body>
-</html>
+
+<AppLayout title="Block Blast" description="test">
+  <main class="bg-[var(--background)] text-[var(--foreground)] min-h-screen p-8">
+    <h1 class="text-4xl">foundation ok</h1>
+  </main>
+</AppLayout>
