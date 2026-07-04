@@ -1,0 +1,52 @@
+{
+  "rating": 5,
+  "votes": 2225,
+  "total": 151,
+  "comments": [
+    {
+      "id": 1,
+      "author": "James",
+      "avatar": null,
+      "content": "lovee this game",
+      "likes": 1,
+      "dislikes": 1,
+      "timestamp": "2026-06-27T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "author": "Danesha",
+      "avatar": null,
+      "content": "Love this game",
+      "likes": 2,
+      "dislikes": 2,
+      "timestamp": "2026-06-20T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "author": "Micayla Beaudet",
+      "avatar": null,
+      "content": "SOOOOOOOOOOOO GOOOOOOOOOOOOOOODDDDDDD",
+      "likes": 3,
+      "dislikes": 3,
+      "timestamp": "2026-06-04T12:00:00Z"
+    },
+    {
+      "id": 4,
+      "author": "Kamryn sweeney",
+      "avatar": null,
+      "content": "I love block blast I rate it 10/10 because it is the best game ever.",
+      "likes": 3,
+      "dislikes": 3,
+      "timestamp": "2026-06-04T10:00:00Z"
+    },
+    {
+      "id": 5,
+      "author": "DAngelo",
+      "avatar": null,
+      "content": "i love the game",
+      "likes": 2,
+      "dislikes": 3,
+      "timestamp": "2026-06-04T08:00:00Z"
+    }
+  ]
+}
