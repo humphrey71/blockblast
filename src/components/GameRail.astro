@@ -1,0 +1,33 @@
+---
+import type { Game } from '../types';
+import GameCard from './GameCard.astro';
+
+/**
+ * A titled grid of game cards. Used for the rail under the game embed
+ * and for the sidebar thumbnail grids.
+ *
+ * Ported 1:1 from $SRC/src/components/GameRail.tsx. The dynamic column count
+ * uses an inline `grid-template-columns` style instead of `grid-cols-${N}` class
+ * concatenation, because Tailwind JIT would otherwise purge the dynamically
+ * generated classes. h3 + gap-2 + container classes copied verbatim from source.
+ */
+interface Props {
+  games: Game[];
+  columns?: number;
+  title?: string;
+  class?: string;
+}
+const { games, columns = 2, title, class: className = '' } = Astro.props;
+---
+
+<section class:list={[className]}>
+  {title && (
+    <h3 class="mb-3 text-lg font-bold tracking-tight text-[var(--bb-title)]">{title}</h3>
+  )}
+  <div
+    class="grid gap-2"
+    style={`grid-template-columns: repeat(${columns}, minmax(0, 1fr));`}
+  >
+    {games.map((g) => <GameCard game={g} />)}
+  </div>
+</section>
